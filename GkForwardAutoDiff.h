@@ -41,6 +41,8 @@ namespace Gkyl {
   };
 
   /* Basic arithmetic operators */
+
+  // binary +
   template<typename L, typename R>
   inline HyperReal operator+(const L& lv, const R& rv) {
     double x0 = F<L>::g(0,lv), x1 = F<L>::g(1,lv);
@@ -51,6 +53,7 @@ namespace Gkyl {
     return HyperReal(rel, inf);
   }
 
+  // binary -  
   template<typename L, typename R>
   inline HyperReal operator-(const L& lv, const R& rv) {
     double x0 = F<L>::g(0,lv), x1 = F<L>::g(1,lv);
@@ -59,8 +62,9 @@ namespace Gkyl {
     double rel = x0-y0;
     double inf = x1-y1;
     return HyperReal(rel, inf);
-  }  
-  
+  }
+
+  // binary *  
   template<typename L, typename R>
   inline HyperReal operator*(const L& lv, const R& rv) {
     double x0 = F<L>::g(0,lv), x1 = F<L>::g(1,lv);
@@ -72,6 +76,7 @@ namespace Gkyl {
     return HyperReal(rel, inf);
   }
 
+  // binary /
   template<typename L, typename R>
   inline HyperReal operator/(const L& lv, const R& rv) {
     double x0 = F<L>::g(0,lv), x1 = F<L>::g(1,lv);
@@ -83,15 +88,30 @@ namespace Gkyl {
     return HyperReal(rel, inf);
   }
 
+  // unary -
+  template<typename T>
+  inline HyperReal operator-(const T& v) {
+    double x0 = F<T>::g(0,v), x1 = F<T>::g(1,v);
+    return HyperReal(-x0, -x1);
+  }
+
+  // unary +
+  template<typename T>
+  inline HyperReal operator+(const T& v) {
+    return v;
+  }  
+
   /* Functions from std::math library */
   namespace m {
 
+    // cos
     template <typename T>
     inline  HyperReal cos(const T& x) {
       double x0 = F<T>::g(0,x), x1 = F<T>::g(1,x);
       return HyperReal(std::cos(x0), -x1*std::sin(x0));
     }
 
+    // sin
     template <typename T>    
     inline HyperReal sin(const T& x) {
       double x0 = F<T>::g(0,x), x1 = F<T>::g(1,x);
