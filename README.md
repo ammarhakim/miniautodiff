@@ -19,7 +19,7 @@ Then build the code:
 ./waf build
 ```
 
-The test cases are in the ```build/Unit`` direction and you can run
+The test cases are in the ```build/Unit``` direction and you can run
 them to check if the code is working properly.
 
 # Some random notes
