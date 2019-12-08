@@ -1,0 +1,10 @@
+## -*- python -*-
+
+def build(bld):
+    includes = '../ .'
+    
+    bld.program(
+        source = 'test_ForwardDiff.cxx',
+        target = 'test_ForwardDiff',
+        includes = includes
+    )
