@@ -10,6 +10,7 @@ def configure(conf):
     conf.env.append_value('CXXFLAGS', '-std=c++17')
 
 def build(bld):
+    bld.recurse("Examples")
     bld.recurse("Unit")
     buildExec(bld)
         
