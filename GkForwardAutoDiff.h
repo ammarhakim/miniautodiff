@@ -104,18 +104,29 @@ namespace Gkyl {
   /* Functions from std::math library */
   namespace m {
 
-    // cos
+    // this default private struct supplies methods for use with POD
+    // types (double and float)
     template <typename T>
-    inline  HyperReal cos(const T& x) {
-      double x0 = F<T>::g(0,x), x1 = F<T>::g(1,x);
-      return HyperReal(std::cos(x0), -x1*std::sin(x0));
-    }
+    struct _m {
+        static T cos(const T& x) { return std::cos(x); }
+        static T sin(const T& x) { return std::sin(x); }
+    };
 
-    // sin
-    template <typename T>    
-    inline HyperReal sin(const T& x) {
-      double x0 = F<T>::g(0,x), x1 = F<T>::g(1,x);
-      return HyperReal(std::sin(x0), x1*std::cos(x0));
-    }    
+    // specialization to HyperReal number
+    template <>
+    struct _m<HyperReal> {
+        static HyperReal cos(const HyperReal& x) {
+          double x0 = F<HyperReal>::g(0,x), x1 = F<HyperReal>::g(1,x);
+          return HyperReal(std::cos(x0), -x1*std::sin(x0));
+        }
+        static HyperReal sin(const HyperReal& x) {
+          double x0 = F<HyperReal>::g(0,x), x1 = F<HyperReal>::g(1,x);
+          return HyperReal(std::sin(x0), x1*std::cos(x0));
+        }
+    };    
+
+    // Trig functions
+    template <typename T> inline T cos(const T& x) { return _m<T>::cos(x); }
+    template <typename T> inline T sin(const T& x) { return _m<T>::sin(x); }
   }
 }
