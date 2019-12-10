@@ -130,6 +130,14 @@ namespace Gkyl {
         static T sqrt(const T& x) { return std::sqrt(x); }        
         static T cos(const T& x) { return std::cos(x); }
         static T sin(const T& x) { return std::sin(x); }
+        static T tan(const T& x) { return std::tan(x); }
+        static T asin(const T& x) { return std::asin(x); }
+        static T acos(const T& x) { return std::acos(x); }
+        static T atan(const T& x) { return std::atan(x); }
+        static T sinh(const T& x) { return std::sinh(x); }
+        static T cosh(const T& x) { return std::cosh(x); }
+        static T tanh(const T& x) { return std::tanh(x); }
+        static T exp(const T& x) { return std::exp(x); }
     };
     
     // specialization to HyperReal number
@@ -151,6 +159,49 @@ namespace Gkyl {
           double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
           return HyperReal(std::sin(x0), x1*std::cos(x0));
         }
+
+        static HyperReal tan(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          double tx0 = std::tan(x0);
+          return HyperReal(tx0, x1*(1+tx0*tx0));
+        }
+
+        static HyperReal asin(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::asin(x0), x1/std::sqrt(1-x0*x0));
+        }
+
+        static HyperReal acos(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::acos(x0), -x1/std::sqrt(1-x0*x0));
+        }
+
+        static HyperReal atan(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::atan(x0), x1/(1+x0*x0));
+        }
+
+        static HyperReal sinh(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::sinh(x0), x1*std::cosh(x0));
+        }
+
+        static HyperReal cosh(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::cosh(x0), x1*std::sinh(x0));
+        }
+
+        static HyperReal tanh(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          double tx0 = std::tanh(x0);
+          return HyperReal(tx0, x1*(1-tx0*tx0));
+        }
+
+        static HyperReal exp(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          double ex0 = std::exp(x0);
+          return HyperReal(ex0, x1*ex0);
+        }
     };
   }
 
@@ -158,4 +209,12 @@ namespace Gkyl {
   template <typename T> inline T sqrt(const T& x) { return _m<T>::sqrt(x); }
   template <typename T> inline T cos(const T& x) { return _m<T>::cos(x); }
   template <typename T> inline T sin(const T& x) { return _m<T>::sin(x); }
+  template <typename T> inline T tan(const T& x) { return _m<T>::tan(x); }
+  template <typename T> inline T asin(const T& x) { return _m<T>::asin(x); }
+  template <typename T> inline T acos(const T& x) { return _m<T>::acos(x); }
+  template <typename T> inline T atan(const T& x) { return _m<T>::atan(x); }
+  template <typename T> inline T sinh(const T& x) { return _m<T>::sinh(x); }
+  template <typename T> inline T cosh(const T& x) { return _m<T>::cosh(x); }
+  template <typename T> inline T tanh(const T& x) { return _m<T>::tanh(x); }
+  template <typename T> inline T exp(const T& x) { return _m<T>::exp(x); }
 }

@@ -30,6 +30,25 @@ TEST_CASE("Tests for calling spec funcs with PODs", "[pod-func]") {
   // f(x) = sqrt(x)
   z = Gkyl::sqrt(x);
   REQUIRE( z == Approx(std::sqrt(5)) );
+
+  // f(x) = tan(x)
+  z = Gkyl::tan(x);
+  REQUIRE( z == Approx(std::tan(5)) );
+
+  // f(x) = asin(t)
+  double t = 0.5;
+  z = Gkyl::asin(t);
+  REQUIRE( z == Approx(std::asin(0.5)) );
+
+  // f(x) = acos(t)
+  t = 0.5;
+  z = Gkyl::acos(t);
+  REQUIRE( z == Approx(std::acos(0.5)) );
+
+  // f(x) = atan(t)
+  t = 0.5;
+  z = Gkyl::atan(t);
+  REQUIRE( z == Approx(std::atan(0.5)) );
 }
 
 TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
@@ -91,4 +110,30 @@ TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
   z = Gkyl::sqrt(x);
   REQUIRE( z.real() == Approx(std::sqrt(5)) );
   REQUIRE( z.inf(0) == Approx(0.223606797749979) );
+
+  // f(x) = tan(x)
+  z = Gkyl::tan(x);
+  REQUIRE( z.real() == Approx(std::tan(5)) );
+  REQUIRE( z.inf(0) == Approx(12.42788170745835) );
+
+  // f(x) = asin(x)
+  Gkyl::HyperReal t(0.5, 1.0);
+  z = Gkyl::asin(t);
+  REQUIRE( z.real() == Approx(std::asin(0.5)) );
+  REQUIRE( z.inf(0) == Approx(1.154700538379252) );
+
+  // f(x) = acos(x)
+  z = Gkyl::acos(t);
+  REQUIRE( z.real() == Approx(std::acos(0.5)) );
+  REQUIRE( z.inf(0) == Approx(-1.154700538379252) );
+
+  // f(x) = atan(x)
+  z = Gkyl::atan(t);
+  REQUIRE( z.real() == Approx(std::atan(0.5)) );
+  REQUIRE( z.inf(0) == Approx(0.8) );
+
+  // f(x) = sinh(x)
+  z = Gkyl::sinh(x);
+  REQUIRE( z.real() == Approx(std::sinh(5.0)) );
+  REQUIRE( z.inf(0) == Approx(0.8) );
 }
