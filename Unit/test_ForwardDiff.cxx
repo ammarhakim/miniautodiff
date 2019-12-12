@@ -61,6 +61,14 @@ TEST_CASE("Tests for calling spec funcs with PODs", "[pod-func]") {
   // f(x) = exp(x)
   z = Gkyl::exp(x);
   REQUIRE( z == Approx(std::exp(5.0)) );
+
+  // f(x) = log(x)
+  z = Gkyl::log(x);
+  REQUIRE( z == Approx(std::log(5.0)) );
+
+  // f(x) = abs(x)
+  z = Gkyl::abs(-x);
+  REQUIRE( z == 5.0 );
 }
 
 TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
@@ -163,4 +171,14 @@ TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
   z = Gkyl::exp(x);
   REQUIRE( z.real() == Approx(std::exp(5.0)) );
   REQUIRE( z.inf(0) == Approx(std::exp(5.0)) );
+
+  // f(x) = log(x)
+  z = Gkyl::log(x);
+  REQUIRE( z.real() == Approx(std::log(5.0)) );
+  REQUIRE( z.inf(0) == Approx(1/5.0) );
+
+  // f(x) = abs(x)
+  z = Gkyl::abs(Gkyl::HyperReal(-5.0, 1.0));
+  REQUIRE( z.real() == 5.0 );
+  REQUIRE( z.inf(0) == -1.0 );
 }

@@ -59,6 +59,12 @@ namespace Gkyl {
     };
   }
 
+  namespace {
+    // sign of value
+    template <typename T>
+    int sgn(T val) { return (T(0) < val) - (val < T(0)); }
+  }
+
   /* Basic arithmetic operators */
 
   // binary +
@@ -138,6 +144,10 @@ namespace Gkyl {
         static T cosh(const T& x) { return std::cosh(x); }
         static T tanh(const T& x) { return std::tanh(x); }
         static T exp(const T& x) { return std::exp(x); }
+        static T log(const T& x) { return std::log(x); }
+        static T abs(const T& x) { return std::abs(x); }
+        static T floor(const T& x) { return std::floor(x); }
+        static T ceil(const T& x) { return std::ceil(x); }
     };
     
     // specialization to HyperReal number
@@ -202,6 +212,26 @@ namespace Gkyl {
           double ex0 = std::exp(x0);
           return HyperReal(ex0, x1*ex0);
         }
+
+        static HyperReal log(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::log(x0), x1/x0);
+        }
+
+        static HyperReal abs(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::abs(x0), x1*sgn(x0));
+        }
+
+        static HyperReal floor(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::floor(x0), 0.0);
+        }
+
+        static HyperReal ceil(const HyperReal& x) {
+          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+          return HyperReal(std::ceil(x0), 0.0);
+        }
     };
   }
 
@@ -217,4 +247,8 @@ namespace Gkyl {
   template <typename T> inline T cosh(const T& x) { return _m<T>::cosh(x); }
   template <typename T> inline T tanh(const T& x) { return _m<T>::tanh(x); }
   template <typename T> inline T exp(const T& x) { return _m<T>::exp(x); }
+  template <typename T> inline T log(const T& x) { return _m<T>::log(x); }
+  template <typename T> inline T abs(const T& x) { return _m<T>::abs(x); }
+  template <typename T> inline T floor(const T& x) { return _m<T>::floor(x); }
+  template <typename T> inline T ceil(const T& x) { return _m<T>::ceil(x); }
 }
