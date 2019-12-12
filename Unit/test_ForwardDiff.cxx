@@ -49,6 +49,18 @@ TEST_CASE("Tests for calling spec funcs with PODs", "[pod-func]") {
   t = 0.5;
   z = Gkyl::atan(t);
   REQUIRE( z == Approx(std::atan(0.5)) );
+
+  // sinh, cosh, tanh
+  z = Gkyl::sinh(x);
+  REQUIRE( z == Approx(std::sinh(5.0)) );
+  z = Gkyl::cosh(x);
+  REQUIRE( z == Approx(std::cosh(5.0)) );
+  z = Gkyl::tanh(x);
+  REQUIRE( z == Approx(std::tanh(5.0)) );
+
+  // f(x) = exp(x)
+  z = Gkyl::exp(x);
+  REQUIRE( z == Approx(std::exp(5.0)) );
 }
 
 TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
@@ -135,5 +147,20 @@ TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
   // f(x) = sinh(x)
   z = Gkyl::sinh(x);
   REQUIRE( z.real() == Approx(std::sinh(5.0)) );
-  REQUIRE( z.inf(0) == Approx(0.8) );
+  REQUIRE( z.inf(0) == Approx(74.20994852478785) );
+
+  // f(x) = cosh(x)
+  z = Gkyl::cosh(x);
+  REQUIRE( z.real() == Approx(std::cosh(5.0)) );
+  REQUIRE( z.inf(0) == Approx(74.20321057778875) );
+
+  // f(x) = tanh(x)
+  z = Gkyl::tanh(x);
+  REQUIRE( z.real() == Approx(std::tanh(5.0)) );
+  REQUIRE( z.inf(0) == Approx(1.815832309438067e-4) );
+
+  // f(x) = exp(x)
+  z = Gkyl::exp(x);
+  REQUIRE( z.real() == Approx(std::exp(5.0)) );
+  REQUIRE( z.inf(0) == Approx(std::exp(5.0)) );
 }
