@@ -72,113 +72,113 @@ TEST_CASE("Tests for calling spec funcs with PODs", "[pod-func]") {
 }
 
 TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
-  Gkyl::HyperReal x(5.0, 1.0);
-  Gkyl::HyperReal z;
+  Gkyl::HyperDouble x(5.0, 1.0);
+  Gkyl::HyperDouble z;
 
   // f(x) = 3
   z = 3;
   REQUIRE( z.real() == 3 );
-  REQUIRE( z.inf(0) == 0.0 );
+  REQUIRE( z.inf() == 0.0 );
 
   // f(x) = -x+3
   z = -x+3;
   REQUIRE( z.real() == -5.0+3 );
-  REQUIRE( z.inf(0) == -1.0 );
+  REQUIRE( z.inf() == -1.0 );
 
   // f(x) = 3-x
   z = 3-x;
   REQUIRE( z.real() == -5.0+3 );
-  REQUIRE( z.inf(0) == -1.0 );  
+  REQUIRE( z.inf() == -1.0 );  
 
   // f(x) = 2*x^2
   z = 2*x*x;
   REQUIRE( z.real() == 2*25.0 );
-  REQUIRE( z.inf(0) == 20.0 );
+  REQUIRE( z.inf() == 20.0 );
 
   // f(x) = x/(1+x)
   z = x/(1+x);
   REQUIRE( z.real() == Approx(5./(1+5)) );
-  REQUIRE( z.inf(0) == Approx(1./(5*5+2*5+1)) );
+  REQUIRE( z.inf() == Approx(1./(5*5+2*5+1)) );
 
   // f(x) = x*cos(x)
   z = x*Gkyl::cos(x);
   REQUIRE( z.real() == Approx(5.0*std::cos(5.0)) );
-  REQUIRE( z.inf(0) == Approx(std::cos(5.0)-5.0*std::sin(5.0)) );
+  REQUIRE( z.inf() == Approx(std::cos(5.0)-5.0*std::sin(5.0)) );
 
   // f(x) = x*sin(x)
   z = x*Gkyl::sin(x);
   REQUIRE( z.real() == Approx(5.0*std::sin(5.0)) );
-  REQUIRE( z.inf(0) == Approx(std::sin(5.0)+5.0*std::cos(5.0)) );
+  REQUIRE( z.inf() == Approx(std::sin(5.0)+5.0*std::cos(5.0)) );
 
   // f(x) = cos(x)^2 + sin(x)^2
   z = Gkyl::sin(x)*Gkyl::sin(x) + Gkyl::cos(x)*Gkyl::cos(x);
   REQUIRE( z.real() == Approx(1.0) );
-  REQUIRE( z.inf(0) == Approx(0.0) );
+  REQUIRE( z.inf() == Approx(0.0) );
 
   // f(x) = cos(x*sin(x))
   z = Gkyl::cos(x*Gkyl::sin(x));
   REQUIRE( z.real() == Approx(std::cos(5*std::sin(5))) );
-  REQUIRE( z.inf(0) == Approx(-0.4578343032148585) );
+  REQUIRE( z.inf() == Approx(-0.4578343032148585) );
 
   // f(x) = cos(w); w = x*sin(x)
-  Gkyl::HyperReal w = x*Gkyl::sin(x);
+  Gkyl::HyperDouble w = x*Gkyl::sin(x);
   z = Gkyl::cos(w);
   REQUIRE( z.real() == Approx(std::cos(5*std::sin(5))) );
-  REQUIRE( z.inf(0) == Approx(-0.4578343032148585) );
+  REQUIRE( z.inf() == Approx(-0.4578343032148585) );
 
   // f(x) = sqrt(x)
   z = Gkyl::sqrt(x);
   REQUIRE( z.real() == Approx(std::sqrt(5)) );
-  REQUIRE( z.inf(0) == Approx(0.223606797749979) );
+  REQUIRE( z.inf() == Approx(0.223606797749979) );
 
   // f(x) = tan(x)
   z = Gkyl::tan(x);
   REQUIRE( z.real() == Approx(std::tan(5)) );
-  REQUIRE( z.inf(0) == Approx(12.42788170745835) );
+  REQUIRE( z.inf() == Approx(12.42788170745835) );
 
   // f(x) = asin(x)
-  Gkyl::HyperReal t(0.5, 1.0);
+  Gkyl::HyperDouble t(0.5, 1.0);
   z = Gkyl::asin(t);
   REQUIRE( z.real() == Approx(std::asin(0.5)) );
-  REQUIRE( z.inf(0) == Approx(1.154700538379252) );
+  REQUIRE( z.inf() == Approx(1.154700538379252) );
 
   // f(x) = acos(x)
   z = Gkyl::acos(t);
   REQUIRE( z.real() == Approx(std::acos(0.5)) );
-  REQUIRE( z.inf(0) == Approx(-1.154700538379252) );
+  REQUIRE( z.inf() == Approx(-1.154700538379252) );
 
   // f(x) = atan(x)
   z = Gkyl::atan(t);
   REQUIRE( z.real() == Approx(std::atan(0.5)) );
-  REQUIRE( z.inf(0) == Approx(0.8) );
+  REQUIRE( z.inf() == Approx(0.8) );
 
   // f(x) = sinh(x)
   z = Gkyl::sinh(x);
   REQUIRE( z.real() == Approx(std::sinh(5.0)) );
-  REQUIRE( z.inf(0) == Approx(74.20994852478785) );
+  REQUIRE( z.inf() == Approx(74.20994852478785) );
 
   // f(x) = cosh(x)
   z = Gkyl::cosh(x);
   REQUIRE( z.real() == Approx(std::cosh(5.0)) );
-  REQUIRE( z.inf(0) == Approx(74.20321057778875) );
+  REQUIRE( z.inf() == Approx(74.20321057778875) );
 
   // f(x) = tanh(x)
   z = Gkyl::tanh(x);
   REQUIRE( z.real() == Approx(std::tanh(5.0)) );
-  REQUIRE( z.inf(0) == Approx(1.815832309438067e-4) );
+  REQUIRE( z.inf() == Approx(1.815832309438067e-4) );
 
   // f(x) = exp(x)
   z = Gkyl::exp(x);
   REQUIRE( z.real() == Approx(std::exp(5.0)) );
-  REQUIRE( z.inf(0) == Approx(std::exp(5.0)) );
+  REQUIRE( z.inf() == Approx(std::exp(5.0)) );
 
   // f(x) = log(x)
   z = Gkyl::log(x);
   REQUIRE( z.real() == Approx(std::log(5.0)) );
-  REQUIRE( z.inf(0) == Approx(1/5.0) );
+  REQUIRE( z.inf() == Approx(1/5.0) );
 
   // f(x) = abs(x)
-  z = Gkyl::abs(Gkyl::HyperReal(-5.0, 1.0));
+  z = Gkyl::abs(Gkyl::HyperDouble(-5.0, 1.0));
   REQUIRE( z.real() == 5.0 );
-  REQUIRE( z.inf(0) == -1.0 );
+  REQUIRE( z.inf() == -1.0 );
 }

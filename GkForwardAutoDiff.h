@@ -1,40 +1,23 @@
-// A simple implementation of forward-mode AutoDiff using operator
-// overloading
+// Gkyl ------------------------------------------------------------------------
+//
+// Forward-mode AD using HyperReal numbers and operator overloading
+//    _______     ___
+// + 6 @ |||| # P ||| +
+//------------------------------------------------------------------------------
+
 
 #pragma once
 
 // std includes
 #include <cmath>
+#include <iostream>
 
 namespace Gkyl {
+  
+  template <typename RT, typename AT> class HyperReal;
 
-  /* Hyperreal number: real + infinitesimal */
-  class HyperReal {
-    public:
-      // various ctors
-      HyperReal() {
-        r_p = 0;
-        inf_p[0] = 0;
-      }
-      HyperReal(double rel) {
-        r_p = rel;
-        inf_p[0] = 0;
-      }
-      HyperReal(double rel, double _inf) {
-        r_p = rel;
-        inf_p[0] = _inf;
-      }
-
-      // real part
-      double real() const { return r_p; }
-      // infinitesimal part
-      double inf(unsigned n) const { return inf_p[n]; }
-      
-    private:
-      double r_p; /* real part */
-      double inf_p[1]; /* Infinitesimal parts */
-  };
-
+  // Private types to extract real and adjoint parts from a
+  // number. The number can be a POD (double/float) or a HyperReal
   namespace {
     /* Fetch real part of POD number */
     template <typename T>
@@ -44,91 +27,84 @@ namespace Gkyl {
     /* Fetch infinitesimal part of POD number */
     template <typename T>
     struct _I {
-        static T g(unsigned i, T r) { return 0; }
+        static T g(T r) { return 0; }
     };    
 
     /* Fetch real part of HyperReal number */
-    template <>
-    struct _R<HyperReal> {
-        static double g(const HyperReal& r) { return r.real(); }
+    template <typename RT, typename AT>
+    struct _R<HyperReal<RT, AT> > {
+        static RT g(const HyperReal<RT, AT>& r) { return r.real(); }
     };
     /* Fetch infinitesimal part of HyperReal number */
-    template <>
-    struct _I<HyperReal> {
-        static double g(unsigned i, const HyperReal& r) { return r.inf(i); }
+    template <typename RT, typename AT>
+    struct _I<HyperReal<RT, AT> > {
+        static AT g(const HyperReal<RT, AT>& r) { return r.inf(); }
     };
   }
+
+  /* Hyperreal number: real + infinitesimal (adjoit). RT is type of
+   * the real-part and AT the type of the adoint part */
+  template <typename RT, typename AT=RT>
+  class HyperReal {
+    public:
+      // various ctors
+      HyperReal() : rp(0), ip(0) { }
+      HyperReal(const RT& rel) : rp(rel), ip(0) { }
+      HyperReal(const RT& rel, const AT& inf) : rp(rel), ip(inf) { }
+
+      // real and infinitesimal parts of number
+      RT real() const { return rp; }
+      AT inf() const { return ip; }
+
+      // binary +
+      template <typename LHT, typename RHT>
+      friend HyperReal<RT,AT> operator+(const LHT& lv, const RHT& rv) {
+        RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
+        AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
+        return HyperReal<RT,AT>(x0+y0, x1+y1);
+      }
+      // binary -
+      template <typename LHT, typename RHT>
+      friend HyperReal<RT,AT> operator-(const LHT& lv, const RHT& rv) {
+        RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
+        AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
+        return HyperReal<RT,AT>(x0-y0, x1-y1);
+      }
+      // binary *
+      template <typename LHT, typename RHT>
+      friend HyperReal<RT,AT> operator*(const LHT& lv, const RHT& rv) {
+        RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
+        AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
+        return HyperReal<RT,AT>(x0*y0, x0*y1+x1*y0);
+      }
+      // binary /
+      template <typename LHT, typename RHT>
+      friend HyperReal<RT,AT> operator/(const LHT& lv, const RHT& rv) {
+        RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
+        AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
+        return HyperReal<RT,AT>(x0/y0, -(x0*y1-x1*y0)/(y0*y0));
+      }
+
+      // unary -, +
+      HyperReal<RT,AT> operator-() { return HyperReal<RT,AT>(-rp, -ip); }
+      HyperReal<RT,AT> operator+() { return HyperReal<RT,AT>(rp, ip); }
+      
+    private:
+      RT rp; /* Real part */
+      AT ip; /* Infinitesimal parts */
+  };
+
+  // Predefined types
+  using HyperDouble = HyperReal<double>;
+  using HyperFloat = HyperReal<float>;
+
+  /* Derivatives of functions from std::math library */
 
   namespace {
     // sign of value
     template <typename T>
     int sgn(T val) { return (T(0) < val) - (val < T(0)); }
-  }
-
-  /* Basic arithmetic operators */
-
-  // binary +
-  template<typename L, typename R>
-  inline HyperReal operator+(const L& lv, const R& rv) {
-    double x0 = _R<L>::g(lv), x1 = _I<L>::g(0,lv);
-    double y0 = _R<R>::g(rv), y1 = _I<R>::g(0,rv);
     
-    double rel = x0+y0;
-    double inf = x1+y1;
-    return HyperReal(rel, inf);
-  }
-
-  // binary -  
-  template<typename L, typename R>
-  inline HyperReal operator-(const L& lv, const R& rv) {
-    double x0 = _R<L>::g(lv), x1 = _I<L>::g(0,lv);
-    double y0 = _R<R>::g(rv), y1 = _I<R>::g(0,rv);
-    
-    double rel = x0-y0;
-    double inf = x1-y1;
-    return HyperReal(rel, inf);
-  }
-
-  // binary *  
-  template<typename L, typename R>
-  inline HyperReal operator*(const L& lv, const R& rv) {
-    double x0 = _R<L>::g(lv), x1 = _I<L>::g(0,lv);
-    double y0 = _R<R>::g(rv), y1 = _I<R>::g(0,rv);
-    
-    double rel = x0*y0;
-    double inf = x0*y1+x1*y0;
-
-    return HyperReal(rel, inf);
-  }
-
-  // binary /
-  template<typename L, typename R>
-  inline HyperReal operator/(const L& lv, const R& rv) {
-    double x0 = _R<L>::g(lv), x1 = _I<L>::g(0,lv);
-    double y0 = _R<R>::g(rv), y1 = _I<R>::g(0,rv);
-    
-    double rel = x0/y0;
-    double inf = -(x0*y1-x1*y0)/(y0*y0);
-    
-    return HyperReal(rel, inf);
-  }
-
-  // unary -
-  template<typename T>
-  inline HyperReal operator-(const T& x) {
-    double x0 = _R<T>::g(x), x1 = _I<T>::g(0,x);
-    return HyperReal(-x0, -x1);
-  }
-
-  // unary +
-  template<typename T>
-  inline HyperReal operator+(const T& v) {
-    return v;
-  }
-
-  /* Derivatives of functions from std::math library */
-
-  namespace {
     // this default private struct supplies methods for use with POD
     // types (double and float)
     template <typename T>
@@ -151,86 +127,86 @@ namespace Gkyl {
     };
     
     // specialization to HyperReal number
-    template <>
-    struct _m<HyperReal> {
+    template <typename RT, typename AT>
+    struct _m<HyperReal<RT,AT> > {
         
-        static HyperReal sqrt(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+        static HyperReal<RT,AT> sqrt(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
           double y0 = std::sqrt(x0);
-          return HyperReal(y0, 0.5*x1/y0);
+          return HyperReal<RT,AT>(y0, 0.5*x1/y0);
         }
         
-        static HyperReal cos(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::cos(x0), -x1*std::sin(x0));
+        static HyperReal<RT,AT> cos(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::cos(x0), -x1*std::sin(x0));
         }
         
-        static HyperReal sin(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::sin(x0), x1*std::cos(x0));
+        static HyperReal<RT,AT> sin(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::sin(x0), x1*std::cos(x0));
         }
 
-        static HyperReal tan(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+        static HyperReal<RT,AT> tan(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
           double tx0 = std::tan(x0);
-          return HyperReal(tx0, x1*(1+tx0*tx0));
+          return HyperReal<RT,AT>(tx0, x1*(1+tx0*tx0));
         }
 
-        static HyperReal asin(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::asin(x0), x1/std::sqrt(1-x0*x0));
+        static HyperReal<RT,AT> asin(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::asin(x0), x1/std::sqrt(1-x0*x0));
         }
 
-        static HyperReal acos(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::acos(x0), -x1/std::sqrt(1-x0*x0));
+        static HyperReal<RT,AT> acos(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::acos(x0), -x1/std::sqrt(1-x0*x0));
         }
 
-        static HyperReal atan(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::atan(x0), x1/(1+x0*x0));
+        static HyperReal<RT,AT> atan(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::atan(x0), x1/(1+x0*x0));
         }
 
-        static HyperReal sinh(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::sinh(x0), x1*std::cosh(x0));
+        static HyperReal<RT,AT> sinh(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::sinh(x0), x1*std::cosh(x0));
         }
 
-        static HyperReal cosh(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::cosh(x0), x1*std::sinh(x0));
+        static HyperReal<RT,AT> cosh(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::cosh(x0), x1*std::sinh(x0));
         }
 
-        static HyperReal tanh(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+        static HyperReal<RT,AT> tanh(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
           double tx0 = std::tanh(x0);
-          return HyperReal(tx0, x1*(1-tx0*tx0));
+          return HyperReal<RT,AT>(tx0, x1*(1-tx0*tx0));
         }
 
-        static HyperReal exp(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
+        static HyperReal<RT,AT> exp(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
           double ex0 = std::exp(x0);
-          return HyperReal(ex0, x1*ex0);
+          return HyperReal<RT,AT>(ex0, x1*ex0);
         }
 
-        static HyperReal log(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::log(x0), x1/x0);
+        static HyperReal<RT,AT> log(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::log(x0), x1/x0);
         }
 
-        static HyperReal abs(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::abs(x0), x1*sgn(x0));
+        static HyperReal<RT,AT> abs(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::abs(x0), x1*sgn(x0));
         }
 
-        static HyperReal floor(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::floor(x0), 0.0);
+        static HyperReal<RT,AT> floor(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::floor(x0), 0.0);
         }
 
-        static HyperReal ceil(const HyperReal& x) {
-          double x0 = _R<HyperReal>::g(x), x1 = _I<HyperReal>::g(0,x);
-          return HyperReal(std::ceil(x0), 0.0);
+        static HyperReal<RT,AT> ceil(const HyperReal<RT,AT>& x) {
+          RT x0 = x.real(); AT x1 = x.inf();
+          return HyperReal<RT,AT>(std::ceil(x0), 0.0);
         }
     };
   }
