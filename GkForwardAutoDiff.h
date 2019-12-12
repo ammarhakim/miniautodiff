@@ -8,31 +8,30 @@
 
 namespace Gkyl {
 
-  /* Hyperreal number: real + infinitesimal */
+  /* Hyperreal number: real + infinitesimal. RT is the type of the
+   * real-part and AT the type of the adoint (derivative) part */
+  template <typename RT, typename AT=RT>
   class HyperReal {
     public:
       // various ctors
-      HyperReal() {
-        r_p = 0;
-        inf_p[0] = 0;
+      HyperReal()
+        : r_p(0), inf_p(0) {
       }
-      HyperReal(double rel) {
-        r_p = rel;
-        inf_p[0] = 0;
+      HyperReal(const RT& rel)
+        : r_p(rel), inf_p(0) {
       }
-      HyperReal(double rel, double _inf) {
-        r_p = rel;
-        inf_p[0] = _inf;
+      HyperReal(double rel, double _inf)
+        : r_p(rel), inf_p(_inf) {
       }
 
       // real part
-      double real() const { return r_p; }
+      RT real() const { return r_p; }
       // infinitesimal part
-      double inf(unsigned n) const { return inf_p[n]; }
+      AT inf() const { return inf_p; }
       
     private:
-      double r_p; /* real part */
-      double inf_p[1]; /* Infinitesimal parts */
+      RT r_p; /* real part */
+      AT inf_p; /* Infinitesimal parts */
   };
 
   namespace {
@@ -48,14 +47,14 @@ namespace Gkyl {
     };    
 
     /* Fetch real part of HyperReal number */
-    template <>
-    struct _R<HyperReal> {
-        static double g(const HyperReal& r) { return r.real(); }
+    template <typename RT, typename AT>
+    struct _R<HyperReal<RT, AT> > {
+        static RT g(const HyperReal<RT, AT>& r) { return r.real(); }
     };
     /* Fetch infinitesimal part of HyperReal number */
-    template <>
-    struct _I<HyperReal> {
-        static double g(unsigned i, const HyperReal& r) { return r.inf(i); }
+    template <typename RT, typename AT>
+    struct _I<HyperReal<RT, AT> > {
+        static AT g(unsigned i, const HyperReal<RT, AT>& r) { return r.inf(); }
     };
   }
 

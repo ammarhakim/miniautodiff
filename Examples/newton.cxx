@@ -9,7 +9,7 @@ T func(const T& x) {
 
 double newtonIter(double x0) {
   Gkyl::HyperReal y = func(Gkyl::HyperReal(x0, 1.0));
-  return x0 - y.real()/y.inf(0);
+  return x0 - y.real()/y.inf();
 }
 
 int
