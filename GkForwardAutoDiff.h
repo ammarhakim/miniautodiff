@@ -28,7 +28,7 @@ namespace Gkyl {
     template <typename T>
     struct _I {
         static T g(T r) { return 0; }
-    };    
+    };
 
     /* Fetch real part of HyperReal number */
     template <typename RT, typename AT>
@@ -42,7 +42,7 @@ namespace Gkyl {
     };
   }
 
-  /* Hyperreal number: real + infinitesimal (adjoit). RT is type of
+  /* Hyperreal number: real + infinitesimal (adjoint). RT is type of
    * the real-part and AT the type of the adoint part */
   template <typename RT, typename AT=RT>
   class HyperReal {
@@ -88,10 +88,16 @@ namespace Gkyl {
       // unary -, +
       HyperReal<RT,AT> operator-() { return HyperReal<RT,AT>(-rp, -ip); }
       HyperReal<RT,AT> operator+() { return HyperReal<RT,AT>(rp, ip); }
+
+      // relational <
+      template<typename LHT, typename RHT>
+      friend bool operator<(const LHT& l, const RHT& r) {
+        return true;
+      }
       
     private:
       RT rp; /* Real part */
-      AT ip; /* Infinitesimal parts */
+      AT ip; /* Infinitesimal part */
   };
 
   // Predefined types
@@ -109,7 +115,7 @@ namespace Gkyl {
     // types (double and float)
     template <typename T>
     struct _m {
-        static T sqrt(const T& x) { return std::sqrt(x); }        
+        static T sqrt(const T& x) { return std::sqrt(x); }      
         static T cos(const T& x) { return std::cos(x); }
         static T sin(const T& x) { return std::sin(x); }
         static T tan(const T& x) { return std::tan(x); }
