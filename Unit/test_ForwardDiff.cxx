@@ -5,6 +5,27 @@
 #include <cmath>
 #include <vector>
 
+TEST_CASE("Tests for relational operators", "[relops]") {
+  double x = 5.0, y = 6.0;
+  Gkyl::HyperDouble hx(5.0);
+  Gkyl::HyperDouble hy(6.0);
+
+  REQUIRE( x==hx );
+  REQUIRE( hx==x );
+
+  REQUIRE( x<hy );
+  REQUIRE( hy>x );
+
+  REQUIRE( y>hx );
+  REQUIRE( hx<y );
+
+  REQUIRE( hx<=hx );
+  REQUIRE( hx>=hx );
+
+  REQUIRE( hx<=5.0 );
+  REQUIRE( hx>=5.0 );
+}
+
 // these set of test ensure that we can call the Gkyl::m math
 // functions with regular POD types (double and float)
 TEST_CASE("Tests for calling spec funcs with PODs", "[pod-func]") {
@@ -181,4 +202,9 @@ TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
   z = Gkyl::abs(Gkyl::HyperDouble(-5.0, 1.0));
   REQUIRE( z.real() == 5.0 );
   REQUIRE( z.inf() == -1.0 );
+
+  // f(x) = x>5 then x*x else x*x*x
+  z = x>5 ? x*x : x*x*x;
+  REQUIRE( z.real() == 125.0 );
+  REQUIRE( z.inf() == 75.0 );
 }

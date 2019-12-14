@@ -58,42 +58,60 @@ namespace Gkyl {
 
       // binary +
       template <typename LHT, typename RHT>
-      friend HyperReal<RT,AT> operator+(const LHT& lv, const RHT& rv) {
+      friend HyperReal operator+(const LHT& lv, const RHT& rv) {
         RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
         AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
         return HyperReal<RT,AT>(x0+y0, x1+y1);
       }
       // binary -
       template <typename LHT, typename RHT>
-      friend HyperReal<RT,AT> operator-(const LHT& lv, const RHT& rv) {
+      friend HyperReal operator-(const LHT& lv, const RHT& rv) {
         RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
         AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
         return HyperReal<RT,AT>(x0-y0, x1-y1);
       }
       // binary *
       template <typename LHT, typename RHT>
-      friend HyperReal<RT,AT> operator*(const LHT& lv, const RHT& rv) {
+      friend HyperReal operator*(const LHT& lv, const RHT& rv) {
         RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
         AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
         return HyperReal<RT,AT>(x0*y0, x0*y1+x1*y0);
       }
       // binary /
       template <typename LHT, typename RHT>
-      friend HyperReal<RT,AT> operator/(const LHT& lv, const RHT& rv) {
+      friend HyperReal operator/(const LHT& lv, const RHT& rv) {
         RT x0 = _R<LHT>::g(lv), y0 = _R<RHT>::g(rv);
         AT x1 = _I<LHT>::g(lv), y1 = _I<RHT>::g(rv);
         return HyperReal<RT,AT>(x0/y0, -(x0*y1-x1*y0)/(y0*y0));
       }
 
       // unary -, +
-      HyperReal<RT,AT> operator-() { return HyperReal<RT,AT>(-rp, -ip); }
-      HyperReal<RT,AT> operator+() { return HyperReal<RT,AT>(rp, ip); }
+      HyperReal operator-() { return HyperReal<RT,AT>(-rp, -ip); }
+      HyperReal operator+() { return HyperReal<RT,AT>(rp, ip); }
 
       // relational <
       template<typename LHT, typename RHT>
-      friend bool operator<(const LHT& l, const RHT& r) {
-        return true;
+      friend bool operator<(const LHT& lv, const RHT& rv) {
+        return _R<LHT>::g(lv) < _R<RHT>::g(rv);
       }
+      // relational >
+      template<typename LHT, typename RHT>
+      friend bool operator>(const LHT& lv, const RHT& rv) { return rv < lv; }
+      // relational <=
+      template<typename LHT, typename RHT>
+      friend bool operator<=(const LHT& lv, const RHT& rv) { return !(lv > rv); }
+      // relational >=
+      template<typename LHT, typename RHT>
+      friend bool operator>=(const LHT& lv, const RHT& rv) { return !(lv < rv); }
+
+      // equality == 
+      template<typename LHT, typename RHT>
+      friend bool operator==(const LHT& lv, const RHT& rv) {
+        return _R<LHT>::g(lv) == _R<RHT>::g(rv);
+      }
+      // inequality != 
+      template<typename LHT, typename RHT>
+      friend bool operator!=(const LHT& lv, const RHT& rv) { return !(lv == rv); }
       
     private:
       RT rp; /* Real part */
