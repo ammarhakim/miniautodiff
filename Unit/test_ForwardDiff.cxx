@@ -92,6 +92,51 @@ TEST_CASE("Tests for calling spec funcs with PODs", "[pod-func]") {
   REQUIRE( z == 5.0 );
 }
 
+TEST_CASE("Compound assignment tests", "[assignment]") {
+  Gkyl::HyperDouble x(5.0, 1.0);
+  Gkyl::HyperDouble z;
+
+  // +=
+  z = 0.0;
+  z += 3;
+  REQUIRE( z.real() == 3 );
+  REQUIRE( z.inf() == 0.0 );
+
+  z = 1.0;
+  z += x;
+  REQUIRE( z.real() == 6.0 );
+  REQUIRE( z.inf() == 1.0 );
+
+  // -=
+  z = 0.0;
+  z -= 3;
+  REQUIRE( z.real() == -3 );
+  REQUIRE( z.inf() == 0.0 );
+
+  z = 1.0;
+  z -= x;
+  REQUIRE( z.real() == -4.0 );
+  REQUIRE( z.inf() == -1.0 );
+
+  // *=
+  z = 1.5;
+  z *= 3;
+  REQUIRE( z.real() == 4.5 );
+  REQUIRE( z.inf() == 0.0 );
+
+  z = 1.0;
+  z *= x;
+  REQUIRE( z.real() == 5.0 );
+  REQUIRE( z.inf() == 0.0 );
+
+  // /=
+  z = 1.0;
+  z /= x;
+  REQUIRE( z.real() == 0.2 );
+  REQUIRE( z.inf() == 0.0 );
+
+}
+
 TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
   Gkyl::HyperDouble x(5.0, 1.0);
   Gkyl::HyperDouble z;
@@ -109,7 +154,12 @@ TEST_CASE("Basic first derivative tests", "[simple-first-diff]") {
   // f(x) = 3-x
   z = 3-x;
   REQUIRE( z.real() == -5.0+3 );
-  REQUIRE( z.inf() == -1.0 );  
+  REQUIRE( z.inf() == -1.0 );
+
+  // f(x) = x+3;
+  z = 3; z += x;
+  REQUIRE( z.real() == 5.0+3 );
+  REQUIRE( z.inf() == 1.0 );
 
   // f(x) = 2*x^2
   z = 2*x*x;

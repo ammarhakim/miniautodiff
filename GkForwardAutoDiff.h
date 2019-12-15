@@ -56,6 +56,43 @@ namespace Gkyl {
       RT real() const { return rp; }
       AT inf() const { return ip; }
 
+      // assignment =
+      template<typename RHT>
+      HyperReal& operator=(const RHT& rv) {
+        RT y0 = _R<RHT>::g(rv); AT y1 = _I<RHT>::g(rv);
+        rp = y0; ip = y1;
+        return *this;    
+      }
+
+      // compound assignment +=
+      template <typename RHT>
+      HyperReal& operator+=(const RHT& rv) {
+        RT y0 = _R<RHT>::g(rv); AT y1 = _I<RHT>::g(rv);
+        rp += y0; ip += y1;
+        return *this;
+      }
+      // compound assignment -=
+      template <typename RHT>
+      HyperReal& operator-=(const RHT& rv) {
+        RT y0 = _R<RHT>::g(rv); AT y1 = _I<RHT>::g(rv);
+        rp -= y0; ip -= y1;
+        return *this;
+      }
+      // compound assignment *=
+      template <typename RHT>
+      HyperReal& operator*=(const RHT& rv) {
+        RT y0 = _R<RHT>::g(rv); AT y1 = _I<RHT>::g(rv);
+        rp *= y0; ip *= y1;
+        return *this;
+      }
+      // compound assignment /=
+      template <typename RHT>
+      HyperReal& operator/=(const RHT& rv) {
+        RT y0 = _R<RHT>::g(rv); AT y1 = _I<RHT>::g(rv);
+        rp /= y0; ip /= y1;
+        return *this;
+      }
+
       // binary +
       template <typename LHT, typename RHT>
       friend HyperReal operator+(const LHT& lv, const RHT& rv) {
