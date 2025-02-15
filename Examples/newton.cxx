@@ -25,5 +25,8 @@ main(void) {
   std::cout << "Root " << xnext << " Iterations " << count << std::endl;
   std::cout << " Check " << func(xnext) << std::endl;
 
+  Gkyl::HyperDouble fr = func(Gkyl::HyperDouble(xnext, 1.0));
+  std::cout << "Slope at root " << fr.inf() << std::endl;
+
   return 0;
 }
